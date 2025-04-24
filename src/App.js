@@ -1,10 +1,13 @@
 import "./App.css";
-import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import Navbar from "./components/Navbar";
+import AdminBuildingList from "./pages/admin/AdminBuildingList";
+
 function App() {
   return (
-    <div className="App">
-      <ManagerDashboard />
-    </div>
+    <>
+      <Navbar />
+      <AdminBuildingList />
+    </>
   );
 }
 
