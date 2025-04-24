@@ -1,14 +1,9 @@
 import "./App.css";
-import Navbar from "./components/Navbar";
-import AdminBuildingList from "./pages/admin/AdminBuildingList";
-
+import SuperAdminDashBoard from "./pages/superAdmin/SuperAdminDashBoard";
 function App() {
-  return (
-    <>
-      <Navbar />
-      <AdminBuildingList />
-    </>
-  );
+  return <div className="App">
+    <SuperAdminDashBoard />
+  </div>;
 }
 
 export default App;
