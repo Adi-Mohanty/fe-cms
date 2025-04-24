@@ -12,12 +12,7 @@ import {
   Switch,
   Box,
 } from "@mui/material";
-import {
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  Visibility,
-  Edit,
-} from "@mui/icons-material";
+import { KeyboardArrowDown, KeyboardArrowUp, Edit } from "@mui/icons-material";
 import TopView from "../../components/TopView";
 
 const dummyData = [
@@ -26,10 +21,11 @@ const dummyData = [
     totalRooms: 10,
     occupiedRooms: 6,
     vacantRooms: 4,
-    status: true,
+    isOpen: true,
     companies: [
       {
         name: "Company A",
+        pan: "SWEDRTY",
         occupied: 3,
         onboardDate: "2024-01-01",
         rent: "₹3000",
@@ -51,7 +47,7 @@ const dummyData = [
     totalRooms: 8,
     occupiedRooms: 5,
     vacantRooms: 3,
-    status: false,
+    isOpen: false,
     companies: [
       {
         name: "Company C",
@@ -67,7 +63,7 @@ const dummyData = [
 
 function Row({ row }) {
   const [open, setOpen] = useState(false);
-  const [floorStatus, setFloorStatus] = useState(row.status);
+  const [floorStatus, setFloorStatus] = useState(row.isOpen);
 
   return (
     <>
@@ -76,20 +72,13 @@ function Row({ row }) {
         <TableCell>{row.totalRooms}</TableCell>
         <TableCell>{row.occupiedRooms}</TableCell>
         <TableCell>{row.vacantRooms}</TableCell>
+        <TableCell>{row.isOpen ? "Open" : "Close"}</TableCell>
         <TableCell>
           <Switch
             checked={floorStatus}
             onChange={() => setFloorStatus(!floorStatus)}
             color="primary"
           />
-        </TableCell>
-        <TableCell>
-          <IconButton color="primary">
-            <Visibility />
-          </IconButton>
-          <IconButton color="secondary">
-            <Edit />
-          </IconButton>
         </TableCell>
         <TableCell>
           <IconButton onClick={() => setOpen(!open)}>
@@ -102,7 +91,7 @@ function Row({ row }) {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Table size="small" aria-label="companies">
               <TableHead>
-                <TableRow>
+                <TableRow sx={{ backgroundColor: "rgba(182, 232, 243,0.4)" }}>
                   <TableCell sx={{ fontWeight: "bold" }}>
                     Company Name
                   </TableCell>
@@ -113,7 +102,7 @@ function Row({ row }) {
                     Onboard Date
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>
-                    Monthly RentAction
+                    Monthly Rent
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>
                     Current Outstanding

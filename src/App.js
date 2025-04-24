@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<AdminBuildingList />} />
+        {/* <Route path="/" element={<Login />} /> */}
         <Route path="/manager" element={<ManagerDashboard />} />
       </Routes>
     </Router>
