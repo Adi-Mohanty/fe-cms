@@ -1,2 +1,2 @@
-# fe-CMS
+# fe-cms
 Company Management System
