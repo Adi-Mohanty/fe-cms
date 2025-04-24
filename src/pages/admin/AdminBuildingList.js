@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,6 +10,13 @@ import {
 } from "@mui/material";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import TopView from "../../components/TopView";
+import { useMapLoader } from "../../MapLoaderProvider";
+import AddUpdateBuildingForm from "./AddUpdateBuildingForm";
+import {
+  useAddBuildingMutation,
+  useGetAllBuildingsQuery,
+  useUpdateBuildingMutation,
+} from "../../redux/api/adminBuildingApiSlice";
 
 const buildings = [
   {
@@ -42,11 +49,30 @@ const mapContainerStyle = {
 };
 
 function AdminBuildingList() {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "",
-  });
+  const { isLoaded } = useMapLoader();
+  const [formOpen, setFormOpen] = useState(false);
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  if (!isLoaded) return <div>Loading maps...</div>;
+  const { data: buildings = [], isLoading } = useGetAllBuildingsQuery();
+  const [addBuilding] = useAddBuildingMutation();
+
+  const [updateBuilding] = useUpdateBuildingMutation();
+
+  const handleFormSubmit = async (data) => {
+    try {
+      if (selectedBuildingId) {
+        await updateBuilding({ id: selectedBuildingId, ...data }).unwrap();
+      } else {
+        await addBuilding(data).unwrap();
+      }
+      setFormOpen(false);
+      setSelectedBuildingId(null);
+    } catch (err) {
+      console.error("Error submitting form:", err);
+    }
+  };
+
+  if (!isLoaded || isLoading) return <div>Loading maps...</div>;
 
   return (
     <Box
@@ -63,7 +89,7 @@ function AdminBuildingList() {
         breadcrumbs={[{ label: "Dashboard", href: "/" }]}
         title="Admin Dashboard"
         buttonLabel="Add Building"
-        onButtonClick={() => console.log("Add Form clicked")}
+        onButtonClick={() => setFormOpen(true)}
       />
 
       <Box
@@ -111,14 +137,31 @@ function AdminBuildingList() {
               </CardContent>
 
               <CardActions sx={{ justifyContent: "flex-end" }}>
-                <Button size="small" variant="outlined">
-                  View
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    setSelectedBuildingId(building.id);
+                    setFormOpen(true);
+                  }}
+                >
+                  Update
                 </Button>
               </CardActions>
             </Card>
           </Box>
         ))}
       </Box>
+
+      <AddUpdateBuildingForm
+        open={formOpen}
+        onClose={() => {
+          setFormOpen(false);
+          setSelectedBuildingId(null);
+        }}
+        uId={selectedBuildingId}
+        onSubmit={handleFormSubmit}
+      />
     </Box>
   );
 }

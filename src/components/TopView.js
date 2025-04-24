@@ -20,7 +20,7 @@ function TopView({
       }}
     >
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           {title}
         </Typography>
 
@@ -40,6 +40,7 @@ function TopView({
                 href={crumb.href || "#"}
                 sx={{
                   fontWeight: index === breadcrumbs.length - 1 ? 600 : 400,
+                  fontSize: "14px",
                 }}
               >
                 {crumb.label}
