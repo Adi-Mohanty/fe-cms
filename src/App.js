@@ -11,8 +11,9 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<AdminBuildingList />} />
+        {/* <Route path="/" element={<Login />} /> */}
         <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/admin" element={<AdminBuildingList />} />
       </Routes>
     </Router>
   );

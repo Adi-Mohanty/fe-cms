@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,26 +12,51 @@ import {
 } from "@mui/material";
 import { GoogleMap, Marker, Autocomplete } from "@react-google-maps/api";
 import { useMapLoader } from "../../MapLoaderProvider";
+import { useGetBuildingByIdQuery } from "../../redux/api/adminBuildingApiSlice";
 
 const containerStyle = {
   width: "100%",
   height: "300px",
 };
 
-function AddUpdateBuildingForm({ open, onClose, initialData = {}, onSubmit }) {
-  const [formData, setFormData] = React.useState({
-    manager: {
-      name: initialData.manager?.name || "",
-      email: initialData.manager?.email || "",
-      phone: initialData.manager?.phone || "",
-    },
-    location: initialData.location || { lat: 20.2961, lng: 85.8245 },
-    floors: initialData.floors || 0,
-    floorDetails: initialData.floorDetails || [],
+function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
+  //   const [formData, setFormData] = React.useState({
+  //     manager: {
+  //       name: initialData.manager?.name || "",
+  //       email: initialData.manager?.email || "",
+  //       phone: initialData.manager?.phone || "",
+  //     },
+  //     location: initialData.location || { lat: 20.2961, lng: 85.8245 },
+  //     floors: initialData.floors || 0,
+  //     floorDetails: initialData.floorDetails || [],
+  //   });
+
+  const { data, isLoading } = useGetBuildingByIdQuery(uId, {
+    skip: !uId,
   });
 
-  const [autocomplete, setAutocomplete] = React.useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    manager: { name: "", email: "", phone: "" },
+    location: { lat: 20.2961, lng: 85.8245 },
+    floors: 0,
+    floorDetails: [],
+  });
+
+  const [autocomplete, setAutocomplete] = useState(null);
   const { isLoaded } = useMapLoader();
+
+  useEffect(() => {
+    if (data && uId) {
+      setFormData({
+        name: data.name || "",
+        manager: data.manager || { name: "", email: "", phone: "" },
+        location: data.location || { lat: 20.2961, lng: 85.8245 },
+        floors: data.floors || 0,
+        floorDetails: data.floorDetails || [],
+      });
+    }
+  }, [data, uId]);
 
   const handlePlaceChanged = () => {
     const place = autocomplete?.getPlace();
@@ -87,7 +112,7 @@ function AddUpdateBuildingForm({ open, onClose, initialData = {}, onSubmit }) {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{initialData ? "Update" : "Add"} Building</DialogTitle>
+      <DialogTitle>{uId ? "Update" : "Add"} Building</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <Typography variant="h6">Manager Details</Typography>
@@ -114,12 +139,26 @@ function AddUpdateBuildingForm({ open, onClose, initialData = {}, onSubmit }) {
           />
 
           <Box mt={3} mb={2}>
-            <Typography variant="h6">Select Building Location</Typography>
+            <Typography variant="h6">Building Details</Typography>
+            <TextField
+              fullWidth
+              label="Building Name"
+              sx={{ mb: 3, mt: 2 }}
+              value={formData.name}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
+            />
+
             <Autocomplete
               onLoad={(ac) => setAutocomplete(ac)}
               onPlaceChanged={handlePlaceChanged}
             >
-              <TextField fullWidth placeholder="Search location" />
+              <TextField
+                sx={{ mb: 3 }}
+                fullWidth
+                placeholder="Search location"
+              />
             </Autocomplete>
             <GoogleMap
               mapContainerStyle={containerStyle}
@@ -177,7 +216,7 @@ function AddUpdateBuildingForm({ open, onClose, initialData = {}, onSubmit }) {
           <DialogActions sx={{ mt: 3 }}>
             <Button onClick={onClose}>Cancel</Button>
             <Button type="submit" variant="contained">
-              {initialData ? "Update" : "Add"}
+              {uId ? "Update" : "Add"}
             </Button>
           </DialogActions>
         </form>

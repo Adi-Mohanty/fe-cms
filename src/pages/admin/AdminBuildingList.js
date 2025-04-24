@@ -12,6 +12,11 @@ import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import TopView from "../../components/TopView";
 import { useMapLoader } from "../../MapLoaderProvider";
 import AddUpdateBuildingForm from "./AddUpdateBuildingForm";
+import {
+  useAddBuildingMutation,
+  useGetAllBuildingsQuery,
+  useUpdateBuildingMutation,
+} from "../../redux/api/adminBuildingApiSlice";
 
 const buildings = [
   {
@@ -46,13 +51,28 @@ const mapContainerStyle = {
 function AdminBuildingList() {
   const { isLoaded } = useMapLoader();
   const [formOpen, setFormOpen] = useState(false);
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  const handleFormSubmit = (data) => {
-    console.log("Form submitted:", data);
-    // Do something with the data, e.g., call mutation
+  const { data: buildings = [], isLoading } = useGetAllBuildingsQuery();
+  const [addBuilding] = useAddBuildingMutation();
+
+  const [updateBuilding] = useUpdateBuildingMutation();
+
+  const handleFormSubmit = async (data) => {
+    try {
+      if (selectedBuildingId) {
+        await updateBuilding({ id: selectedBuildingId, ...data }).unwrap();
+      } else {
+        await addBuilding(data).unwrap();
+      }
+      setFormOpen(false);
+      setSelectedBuildingId(null);
+    } catch (err) {
+      console.error("Error submitting form:", err);
+    }
   };
 
-  if (!isLoaded) return <div>Loading maps...</div>;
+  if (!isLoaded || isLoading) return <div>Loading maps...</div>;
 
   return (
     <Box
@@ -117,8 +137,15 @@ function AdminBuildingList() {
               </CardContent>
 
               <CardActions sx={{ justifyContent: "flex-end" }}>
-                <Button size="small" variant="outlined">
-                  View
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    setSelectedBuildingId(building.id);
+                    setFormOpen(true);
+                  }}
+                >
+                  Update
                 </Button>
               </CardActions>
             </Card>
@@ -128,7 +155,11 @@ function AdminBuildingList() {
 
       <AddUpdateBuildingForm
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => {
+          setFormOpen(false);
+          setSelectedBuildingId(null);
+        }}
+        uId={selectedBuildingId}
         onSubmit={handleFormSubmit}
       />
     </Box>

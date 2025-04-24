@@ -4,13 +4,17 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { MapLoaderProvider } from "./MapLoaderProvider";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <MapLoaderProvider>
-      <App />
-    </MapLoaderProvider>
+    <Provider store={store}>
+      <MapLoaderProvider>
+        <App />
+      </MapLoaderProvider>
+    </Provider>
   </React.StrictMode>
 );
 
