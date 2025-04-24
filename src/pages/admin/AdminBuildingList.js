@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,6 +10,8 @@ import {
 } from "@mui/material";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import TopView from "../../components/TopView";
+import { useMapLoader } from "../../MapLoaderProvider";
+import AddUpdateBuildingForm from "./AddUpdateBuildingForm";
 
 const buildings = [
   {
@@ -42,9 +44,13 @@ const mapContainerStyle = {
 };
 
 function AdminBuildingList() {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "",
-  });
+  const { isLoaded } = useMapLoader();
+  const [formOpen, setFormOpen] = useState(false);
+
+  const handleFormSubmit = (data) => {
+    console.log("Form submitted:", data);
+    // Do something with the data, e.g., call mutation
+  };
 
   if (!isLoaded) return <div>Loading maps...</div>;
 
@@ -63,7 +69,7 @@ function AdminBuildingList() {
         breadcrumbs={[{ label: "Dashboard", href: "/" }]}
         title="Admin Dashboard"
         buttonLabel="Add Building"
-        onButtonClick={() => console.log("Add Form clicked")}
+        onButtonClick={() => setFormOpen(true)}
       />
 
       <Box
@@ -119,6 +125,12 @@ function AdminBuildingList() {
           </Box>
         ))}
       </Box>
+
+      <AddUpdateBuildingForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={handleFormSubmit}
+      />
     </Box>
   );
 }

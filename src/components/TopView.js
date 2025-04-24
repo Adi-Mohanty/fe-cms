@@ -20,11 +20,11 @@ function TopView({
       }}
     >
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           {title}
         </Typography>
 
-        {breadcrumbs.length > 0 && (
+        {/* {breadcrumbs.length > 0 && (
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" />}
             aria-label="breadcrumb"
@@ -40,13 +40,14 @@ function TopView({
                 href={crumb.href || "#"}
                 sx={{
                   fontWeight: index === breadcrumbs.length - 1 ? 600 : 400,
+                  fontSize: "14px",
                 }}
               >
                 {crumb.label}
               </Link>
             ))}
           </Breadcrumbs>
-        )}
+        )} */}
       </Box>
 
       <Button
