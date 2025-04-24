@@ -1,7 +1,14 @@
 import "./App.css";
+import Navbar from "./components/Navbar";
+import AdminBuildingList from "./pages/admin/AdminBuildingList";
 
 function App() {
-  return <div className="App">CMS asdhhasdjhl</div>;
+  return (
+    <>
+      <Navbar />
+      <AdminBuildingList />
+    </>
+  );
 }
 
 export default App;
