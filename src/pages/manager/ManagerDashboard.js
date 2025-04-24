@@ -18,6 +18,7 @@ import {
   Visibility,
   Edit,
 } from "@mui/icons-material";
+import TopView from "../../components/TopView";
 
 const dummyData = [
   {
@@ -31,17 +32,17 @@ const dummyData = [
         name: "Company A",
         occupied: 3,
         onboardDate: "2024-01-01",
-        rent: "$3000",
-        outstanding: "$500",
-        maintenance: "$200",
+        rent: "₹3000",
+        outstanding: "₹500",
+        maintenance: "₹200",
       },
       {
         name: "Company B",
         occupied: 3,
         onboardDate: "2024-03-15",
-        rent: "$2500",
-        outstanding: "$0",
-        maintenance: "$150",
+        rent: "₹2500",
+        outstanding: "₹0",
+        maintenance: "₹150",
       },
     ],
   },
@@ -56,9 +57,9 @@ const dummyData = [
         name: "Company C",
         occupied: 5,
         onboardDate: "2024-02-10",
-        rent: "$4000",
-        outstanding: "$800",
-        maintenance: "$250",
+        rent: "₹4000",
+        outstanding: "₹800",
+        maintenance: "₹250",
       },
     ],
   },
@@ -71,11 +72,6 @@ function Row({ row }) {
   return (
     <>
       <TableRow>
-        <TableCell>
-          <IconButton onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </IconButton>
-        </TableCell>
         <TableCell>{row.floor}</TableCell>
         <TableCell>{row.totalRooms}</TableCell>
         <TableCell>{row.occupiedRooms}</TableCell>
@@ -95,6 +91,11 @@ function Row({ row }) {
             <Edit />
           </IconButton>
         </TableCell>
+        <TableCell>
+          <IconButton onClick={() => setOpen(!open)}>
+            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+          </IconButton>
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
@@ -112,7 +113,7 @@ function Row({ row }) {
                     Onboard Date
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>
-                    Monthly Rent
+                    Monthly RentAction
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>
                     Current Outstanding
@@ -144,27 +145,47 @@ function Row({ row }) {
 
 export default function ManagerDashboard() {
   return (
-    <Box p={2}>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell sx={{ fontWeight: "bold" }}>Floor No.</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Total Rooms</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Occupied Rooms</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Vacant Rooms</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {dummyData.map((row, index) => (
-              <Row key={index} row={row} />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <Box
+      sx={{
+        p: 4,
+        backgroundColor: "#f4f6f8",
+        minHeight: "calc(100vh-64px)",
+        width: "100%",
+        overflowX: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
+      <TopView
+        breadcrumbs={[{ label: "Dashboard", href: "/" }]}
+        title="Manager Dashboard"
+        buttonLabel="Onboard Company"
+        onButtonClick={() => console.log("Onboard Company Button Clicked")}
+      />
+      <Box p={2}>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold" }}>Floor No.</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Total Rooms</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>
+                  Occupied Rooms
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Vacant Rooms</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
+                {/* <TableCell /> */}
+                <TableCell sx={{ fontWeight: "bold" }}>Details</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {dummyData.map((row, index) => (
+                <Row key={index} row={row} />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Box>
   );
 }

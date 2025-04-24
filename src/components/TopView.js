@@ -24,7 +24,7 @@ function TopView({
           {title}
         </Typography>
 
-        {breadcrumbs.length > 0 && (
+        {/* {breadcrumbs.length > 0 && (
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" />}
             aria-label="breadcrumb"
@@ -46,7 +46,7 @@ function TopView({
               </Link>
             ))}
           </Breadcrumbs>
-        )}
+        )} */}
       </Box>
 
       <Button
