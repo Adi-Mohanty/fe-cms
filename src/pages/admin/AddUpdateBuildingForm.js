@@ -32,6 +32,7 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
     floorDetails: [],
   });
 
+  const [errors, setErrors] = useState({});
   const [autocomplete, setAutocomplete] = useState(null);
   const { isLoaded } = useMapLoader();
 
@@ -56,6 +57,7 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
         floors: 0,
         floorDetails: [],
       });
+      setErrors({});
     }
   }, [open]);
 
@@ -80,6 +82,9 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
         [key]: value,
       },
     }));
+    if (key === "email") validateEmail(value);
+    if (key === "phone") validatePhone(value);
+    if (key === "name") validateManagerName(value);
   };
 
   const handleFloorsChange = (e) => {
@@ -89,26 +94,113 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
       floors: value,
       floorDetails: Array.from(
         { length: value },
-        (_, i) => prev.floorDetails[i] || { rooms: "", rent: "" }
+        (_, i) => prev.floorDetails[i] || { rooms: 0, rent: 0 }
       ),
     }));
   };
 
   const handleFloorDetailChange = (index, key, value) => {
-    const updatedValue = Math.max(1, parseInt(value));
+    const updatedValue = Math.max(1, Number(value));
     const updated = [...formData.floorDetails];
-    updated[index][key] = updatedValue;
+    const floor = { ...updated[index] };
+    floor[key] = updatedValue;
+    updated[index] = floor;
+
     setFormData((prev) => ({
       ...prev,
       floorDetails: updated,
     }));
   };
 
+  const validateManagerName = (name) => {
+    if (!name) {
+      setErrors((prev) => ({
+        ...prev,
+        managerName: "Manager name is required",
+      }));
+    } else {
+      setErrors((prev) => {
+        const { managerName, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Enter a valid email address",
+      }));
+    } else {
+      setErrors((prev) => {
+        const { email, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "Enter a valid 10-digit Indian phone number",
+      }));
+    } else {
+      setErrors((prev) => {
+        const { phone, ...rest } = prev;
+        return rest;
+      });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+
+    if (!formData.name) {
+      newErrors.name = "Building name is required";
+    }
+    if (!formData.manager.name) {
+      newErrors.managerName = "Manager name is required";
+    }
+    if (!formData.manager.email) {
+      newErrors.email = "Manager email is required";
+    }
+    if (!formData.manager.phone) {
+      newErrors.phone = "Manager phone number is required";
+    }
+    if (!formData.location.lat || !formData.location.lng) {
+      newErrors.location = "Location is required";
+    }
+
+    validateEmail(formData.manager.email);
+    validatePhone(formData.manager.phone);
+
+    setErrors((prev) => ({
+      ...prev,
+      ...newErrors,
+    }));
+
+    if (Object.keys(newErrors).length > 0 || Object.keys(errors).length > 0) {
+      return;
+    }
+
     onSubmit?.(formData);
     onClose();
   };
+
+  useEffect(() => {
+    if (formData.name) {
+      setErrors((prev) => {
+        const { name, ...rest } = prev;
+        return rest;
+      });
+    }
+  }, [formData.name]);
 
   if (!isLoaded) return null;
 
@@ -124,6 +216,8 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
             margin="normal"
             value={formData.manager.name}
             onChange={(e) => handleManagerChange("name", e.target.value)}
+            error={!!errors.managerName}
+            helperText={errors.managerName}
           />
           <TextField
             fullWidth
@@ -131,6 +225,8 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
             margin="normal"
             value={formData.manager.email}
             onChange={(e) => handleManagerChange("email", e.target.value)}
+            error={!!errors.email}
+            helperText={errors.email}
           />
           <TextField
             fullWidth
@@ -138,6 +234,11 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
             margin="normal"
             value={formData.manager.phone}
             onChange={(e) => handleManagerChange("phone", e.target.value)}
+            error={!!errors.phone}
+            helperText={errors.phone}
+            inputProps={{
+              maxLength: 10,
+            }}
           />
 
           <Box mt={3} mb={2}>
@@ -150,6 +251,8 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
+              error={!!errors.name}
+              helperText={errors.name}
             />
 
             <Autocomplete
@@ -160,6 +263,8 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
                 sx={{ mb: 3 }}
                 fullWidth
                 placeholder="Search location"
+                error={!!errors.location}
+                helperText={errors.location}
               />
             </Autocomplete>
             <GoogleMap

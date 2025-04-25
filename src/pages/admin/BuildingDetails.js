@@ -3,12 +3,13 @@ import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
 import { useGetBuildingByIdQuery } from "../../redux/api/adminBuildingApiSlice";
 
@@ -37,72 +38,59 @@ function BuildingDetails() {
         Building Details
       </Typography>
 
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Manager Details
-          </Typography>
-          <List>
-            <ListItem>
-              <ListItemText primary="Name" secondary={building.manager.name} />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Email"
-                secondary={building.manager.email}
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Phone"
-                secondary={building.manager.phone}
-              />
-            </ListItem>
-          </List>
+      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+        Building and Manager Details
+      </Typography>
 
-          <Typography variant="h6" sx={{ mt: 3, fontWeight: 600 }}>
-            Building Details
-          </Typography>
-          <List>
-            <ListItem>
-              <ListItemText primary="Building Name" secondary={building.name} />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Location"
-                secondary={`${building.location.lat}, ${building.location.lng}`}
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Number of Floors"
-                secondary={building.floors}
-              />
-            </ListItem>
-          </List>
-        </CardContent>
-      </Card>
+      <TableContainer component={Paper} sx={{ mb: 4 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Manager Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Phone</TableCell>
+              <TableCell>Building Name</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Number of Floors</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>{building.manager.name}</TableCell>
+              <TableCell>{building.manager.email}</TableCell>
+              <TableCell>{building.manager.phone}</TableCell>
+              <TableCell>{building.name}</TableCell>
+              <TableCell>{`${building.location.lat}, ${building.location.lng}`}</TableCell>
+              <TableCell>{building.floors}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
         Floor Details
       </Typography>
-      {building.floorDetails.map((floor, index) => (
-        <Card sx={{ mb: 2 }} key={index}>
-          <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Floor {index + 1}
-            </Typography>
-            <List>
-              <ListItem>
-                <ListItemText primary="Rooms" secondary={floor.rooms} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Rent per Room" secondary={floor.rent} />
-              </ListItem>
-            </List>
-          </CardContent>
-        </Card>
-      ))}
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Floor</TableCell>
+              <TableCell>Rooms</TableCell>
+              <TableCell>Rent per Room</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {building.floorDetails.map((floor, index) => (
+              <TableRow key={index}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{floor.rooms}</TableCell>
+                <TableCell>{floor.rent}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }
