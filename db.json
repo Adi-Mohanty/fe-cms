@@ -1,0 +1,45 @@
+{
+    "admins": [
+      {
+        "id": 1,
+        "companyName": "DLF",
+        "adminName": "John Doe",
+        "phone": "9876543210",
+        "email": "john.doe@example.com",
+        "password": "password123"
+      },
+      {
+        "id": 2,
+        "companyName": "Tata Realty",
+        "adminName": "Priya Sharma",
+        "phone": "9123456780",
+        "email": "priya.sharma@tata.com",
+        "password": "secure456"
+      },
+      {
+        "id": 3,
+        "companyName": "Godrej Properties",
+        "adminName": "Aman Verma",
+        "phone": "9988776655",
+        "email": "aman.verma@godrej.com",
+        "password": "godrej789"
+      },
+      {
+        "id": 4,
+        "companyName": "Prestige Group",
+        "adminName": "Neha Singh",
+        "phone": "9090909090",
+        "email": "neha.singh@prestige.com",
+        "password": "prestige321"
+      },
+      {
+        "id": 5,
+        "companyName": "Sobha Ltd",
+        "adminName": "Raj Malhotra",
+        "phone": "9812345678",
+        "email": "raj.malhotra@sobha.com",
+        "password": "sobha@2024"
+      }
+    ]
+  }
+  
