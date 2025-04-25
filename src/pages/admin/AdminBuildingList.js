@@ -9,6 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { useNavigate } from "react-router-dom";
 import TopView from "../../components/TopView";
 import { useMapLoader } from "../../MapLoaderProvider";
 import AddUpdateBuildingForm from "./AddUpdateBuildingForm";
@@ -52,6 +53,7 @@ function AdminBuildingList() {
   const { isLoaded } = useMapLoader();
   const [formOpen, setFormOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const navigate = useNavigate();
 
   const { data: buildings = [], isLoading } = useGetAllBuildingsQuery();
   const [addBuilding] = useAddBuildingMutation();
@@ -96,7 +98,7 @@ function AdminBuildingList() {
         sx={{
           display: "flex",
           flexWrap: "wrap",
-          gap: 3,
+          gap: 2,
           width: "100%",
         }}
       >
@@ -106,13 +108,13 @@ function AdminBuildingList() {
             sx={{
               flex: {
                 xs: "1 1 100%",
-                sm: "1 1 calc(50% - 24px)",
+                sm: "1 1 calc(25% - 24px)",
               },
               minWidth: 0,
               boxSizing: "border-box",
             }}
           >
-            <Card sx={{ borderRadius: 3, boxShadow: 4, p: 2 }}>
+            <Card sx={{ borderRadius: 3, boxShadow: 4, p: 2, maxWidth: 400 }}>
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={building.location}
@@ -146,6 +148,13 @@ function AdminBuildingList() {
                   }}
                 >
                   Update
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => navigate(`/building/${building.id}`)}
+                >
+                  View
                 </Button>
               </CardActions>
             </Card>

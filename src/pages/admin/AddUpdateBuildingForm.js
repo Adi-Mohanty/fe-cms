@@ -20,17 +20,6 @@ const containerStyle = {
 };
 
 function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
-  //   const [formData, setFormData] = React.useState({
-  //     manager: {
-  //       name: initialData.manager?.name || "",
-  //       email: initialData.manager?.email || "",
-  //       phone: initialData.manager?.phone || "",
-  //     },
-  //     location: initialData.location || { lat: 20.2961, lng: 85.8245 },
-  //     floors: initialData.floors || 0,
-  //     floorDetails: initialData.floorDetails || [],
-  //   });
-
   const { data, isLoading } = useGetBuildingByIdQuery(uId, {
     skip: !uId,
   });
@@ -58,6 +47,18 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
     }
   }, [data, uId]);
 
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        name: "",
+        manager: { name: "", email: "", phone: "" },
+        location: { lat: 20.2961, lng: 85.8245 },
+        floors: 0,
+        floorDetails: [],
+      });
+    }
+  }, [open]);
+
   const handlePlaceChanged = () => {
     const place = autocomplete?.getPlace();
     if (place?.geometry?.location) {
@@ -82,7 +83,7 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
   };
 
   const handleFloorsChange = (e) => {
-    const value = parseInt(e.target.value);
+    const value = Math.max(1, parseInt(e.target.value));
     setFormData((prev) => ({
       ...prev,
       floors: value,
@@ -94,8 +95,9 @@ function AddUpdateBuildingForm({ open, onClose, uId, onSubmit }) {
   };
 
   const handleFloorDetailChange = (index, key, value) => {
+    const updatedValue = Math.max(1, parseInt(value));
     const updated = [...formData.floorDetails];
-    updated[index][key] = value;
+    updated[index][key] = updatedValue;
     setFormData((prev) => ({
       ...prev,
       floorDetails: updated,
