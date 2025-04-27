@@ -6,6 +6,7 @@ import AddUpdateBuildingForm from "./pages/admin/AddUpdateBuildingForm";
 import AdminBuildingList from "./pages/admin/AdminBuildingList";
 import BuildingDetails from "./pages/admin/BuildingDetails";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import AddUpdateCompany from "./pages/manager/AddUpdateCompany";
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/admin" element={<AdminBuildingList />} />
         <Route path="/building/:id" element={<BuildingDetails />} />
+
+        <Route path="/company/add" element={<AddUpdateCompany />} />
       </Routes>
     </Router>
   );

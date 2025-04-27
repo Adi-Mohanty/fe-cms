@@ -1,46 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   CardActions,
   Button,
   Typography,
-  Grid,
   Box,
 } from "@mui/material";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
 import TopView from "../../components/TopView";
 import { useMapLoader } from "../../MapLoaderProvider";
 import AddUpdateBuildingForm from "./AddUpdateBuildingForm";
-import {
-  useAddBuildingMutation,
-  useGetAllBuildingsQuery,
-  useUpdateBuildingMutation,
-} from "../../redux/api/adminBuildingApiSlice";
-
-const buildings = [
-  {
-    id: 1,
-    name: "Headquarters",
-    location: { lat: 37.7749, lng: -122.4194 },
-    manager: {
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      phone: "+1 234 567 8901",
-    },
-  },
-  {
-    id: 2,
-    name: "Branch Office",
-    location: { lat: 34.0522, lng: -118.2437 },
-    manager: {
-      name: "Bob Smith",
-      email: "bob@example.com",
-      phone: "+1 987 654 3210",
-    },
-  },
-];
+import { buildingService } from "../../service/buildingService";
 
 const mapContainerStyle = {
   width: "100%",
@@ -53,20 +25,34 @@ function AdminBuildingList() {
   const { isLoaded } = useMapLoader();
   const [formOpen, setFormOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [buildings, setBuildings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const { data: buildings = [], isLoading } = useGetAllBuildingsQuery();
-  const [addBuilding] = useAddBuildingMutation();
+  const fetchBuildings = async () => {
+    setLoading(true);
+    try {
+      const res = await buildingService.getAllBuildings();
+      setBuildings(res);
+    } catch (error) {
+      console.error("Error fetching buildings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const [updateBuilding] = useUpdateBuildingMutation();
+  useEffect(() => {
+    fetchBuildings();
+  }, []);
 
   const handleFormSubmit = async (data) => {
     try {
       if (selectedBuildingId) {
-        await updateBuilding({ id: selectedBuildingId, ...data }).unwrap();
+        await buildingService.updateBuilding(selectedBuildingId, data);
       } else {
-        await addBuilding(data).unwrap();
+        await buildingService.addBuilding(data);
       }
+      await fetchBuildings();
       setFormOpen(false);
       setSelectedBuildingId(null);
     } catch (err) {
@@ -74,14 +60,14 @@ function AdminBuildingList() {
     }
   };
 
-  if (!isLoaded || isLoading) return <div>Loading maps...</div>;
+  if (!isLoaded || loading) return <div>Loading maps...</div>;
 
   return (
     <Box
       sx={{
         p: 4,
         backgroundColor: "#f4f6f8",
-        minHeight: "calc(100vh-64px)",
+        minHeight: "calc(100vh - 64px)",
         width: "100%",
         overflowX: "hidden",
         boxSizing: "border-box",
@@ -91,25 +77,18 @@ function AdminBuildingList() {
         breadcrumbs={[{ label: "Dashboard", href: "/" }]}
         title="Admin Dashboard"
         buttonLabel="Add Building"
-        onButtonClick={() => setFormOpen(true)}
+        onButtonClick={() => {
+          setFormOpen(true);
+          setSelectedBuildingId(null);
+        }}
       />
 
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
-          width: "100%",
-        }}
-      >
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, width: "100%" }}>
         {buildings.map((building) => (
           <Box
             key={building.id}
             sx={{
-              flex: {
-                xs: "1 1 100%",
-                sm: "1 1 calc(25% - 24px)",
-              },
+              flex: { xs: "1 1 100%", sm: "1 1 calc(25% - 24px)" },
               minWidth: 0,
               boxSizing: "border-box",
             }}
@@ -128,13 +107,13 @@ function AdminBuildingList() {
                   {building.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {building.manager.name}
+                  {building.manager?.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {building.manager.email}
+                  {building.manager?.email}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {building.manager.phone}
+                  {building.manager?.phone}
                 </Typography>
               </CardContent>
 
@@ -166,9 +145,9 @@ function AdminBuildingList() {
         open={formOpen}
         onClose={() => {
           setFormOpen(false);
-          setSelectedBuildingId(null);
+          setTimeout(() => setSelectedBuildingId(null), 300);
         }}
-        uId={selectedBuildingId}
+        id={selectedBuildingId}
         onSubmit={handleFormSubmit}
       />
     </Box>

@@ -1,5 +1,84 @@
-import React, { useState } from "react";
+// import { useEffect, useState } from "react";
+// import { managerActions } from "../../action/managerAction";
+// import {
+//   Box,
+//   Paper,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+// } from "@mui/material";
+// import TopView from "../../components/TopView";
+// import Row from "../components/Row"; // your Row component for collapsible row
+
+// export default function ManagerDashboard() {
+//   const [managers, setManagers] = useState([]);
+
+//   useEffect(() => {
+//     async function fetchManagers() {
+//       const response = await managerActions.fetchAllManagers();
+//       if (response.success) {
+//         setManagers(response.data);
+//       } else {
+//         console.error(response.error);
+//       }
+//     }
+//     fetchManagers();
+//   }, []);
+
+//   return (
+//     <Box
+//       sx={{
+//         p: 4,
+//         backgroundColor: "#f4f6f8",
+//         minHeight: "calc(100vh - 64px)",
+//         width: "100%",
+//         overflowX: "hidden",
+//         boxSizing: "border-box",
+//       }}
+//     >
+//       <TopView
+//         breadcrumbs={[{ label: "Dashboard", href: "/" }]}
+//         title="Manager Dashboard"
+//         buttonLabel="Onboard Company"
+//         onButtonClick={() => console.log("Onboard Company Button Clicked")}
+//       />
+//       <Box p={2}>
+//         <TableContainer component={Paper}>
+//           <Table>
+//             <TableHead>
+//               <TableRow>
+//                 <TableCell sx={{ fontWeight: "bold" }}>Company Name</TableCell>
+//                 <TableCell sx={{ fontWeight: "bold" }}>
+//                   Rooms Occupied
+//                 </TableCell>
+//                 <TableCell sx={{ fontWeight: "bold" }}>Onboard Date</TableCell>
+//                 <TableCell sx={{ fontWeight: "bold" }}>Monthly Rent</TableCell>
+//                 <TableCell sx={{ fontWeight: "bold" }}>
+//                   Current Outstanding
+//                 </TableCell>
+//                 <TableCell sx={{ fontWeight: "bold" }}>
+//                   Maintenance Cost
+//                 </TableCell>
+//               </TableRow>
+//             </TableHead>
+//             <TableBody>
+//               {managers.map((row, index) => (
+//                 <Row key={index} row={row} />
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </TableContainer>
+//       </Box>
+//     </Box>
+//   );
+// }
+
+import React, { useState, useEffect } from "react";
 import {
+  Box,
   Table,
   TableBody,
   TableCell,
@@ -10,56 +89,19 @@ import {
   IconButton,
   Collapse,
   Switch,
-  Box,
+  Button,
+  Grid,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
-import { KeyboardArrowDown, KeyboardArrowUp, Edit } from "@mui/icons-material";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import TopView from "../../components/TopView";
-
-const dummyData = [
-  {
-    floor: 1,
-    totalRooms: 10,
-    occupiedRooms: 6,
-    vacantRooms: 4,
-    isOpen: true,
-    companies: [
-      {
-        name: "Company A",
-        pan: "SWEDRTY",
-        occupied: 3,
-        onboardDate: "2024-01-01",
-        rent: "₹3000",
-        outstanding: "₹500",
-        maintenance: "₹200",
-      },
-      {
-        name: "Company B",
-        occupied: 3,
-        onboardDate: "2024-03-15",
-        rent: "₹2500",
-        outstanding: "₹0",
-        maintenance: "₹150",
-      },
-    ],
-  },
-  {
-    floor: 2,
-    totalRooms: 8,
-    occupiedRooms: 5,
-    vacantRooms: 3,
-    isOpen: false,
-    companies: [
-      {
-        name: "Company C",
-        occupied: 5,
-        onboardDate: "2024-02-10",
-        rent: "₹4000",
-        outstanding: "₹800",
-        maintenance: "₹250",
-      },
-    ],
-  },
-];
+import { managerService } from "../../service/managerService";
+import { useNavigate } from "react-router-dom";
+import { buildingActions } from "../../action/buildingActions";
 
 function Row({ row }) {
   const [open, setOpen] = useState(false);
@@ -133,6 +175,33 @@ function Row({ row }) {
 }
 
 export default function ManagerDashboard() {
+  const [openModal, setOpenModal] = useState(false);
+  const [managers, setManagers] = useState([]);
+  const [floorsData, setFloorsData] = useState([]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadFloors = async () => {
+      const response = await buildingActions.fetchAllBuildings();
+      console.log("rsponse", response.data);
+      if (response.success) {
+        setFloorsData(response?.data);
+      } else {
+        console.error(response.error);
+      }
+    };
+    loadFloors();
+  }, []);
+
+  const handleAddCompanyClick = () => {
+    navigate("/company/add");
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
     <Box
       sx={{
@@ -148,7 +217,7 @@ export default function ManagerDashboard() {
         breadcrumbs={[{ label: "Dashboard", href: "/" }]}
         title="Manager Dashboard"
         buttonLabel="Onboard Company"
-        onButtonClick={() => console.log("Onboard Company Button Clicked")}
+        onButtonClick={handleAddCompanyClick}
       />
       <Box p={2}>
         <TableContainer component={Paper}>
@@ -163,18 +232,19 @@ export default function ManagerDashboard() {
                 <TableCell sx={{ fontWeight: "bold" }}>Vacant Rooms</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
-                {/* <TableCell /> */}
                 <TableCell sx={{ fontWeight: "bold" }}>Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {dummyData.map((row, index) => (
+              {floorsData?.map((row, index) => (
                 <Row key={index} row={row} />
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Box>
+
+      {/* <OnboardCompanyModal open={openModal} onClose={handleCloseModal} /> */}
     </Box>
   );
 }
