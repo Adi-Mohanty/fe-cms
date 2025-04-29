@@ -179,12 +179,11 @@
 
 // export default RoomType;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
   TextField,
-  MenuItem,
   Button,
   Table,
   TableBody,
@@ -194,43 +193,65 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { roomListAction } from "../action/RoomListActions";
 
-const maintenanceOptions = ["Monthly", "Quarterly", "Yearly"];
-
-function RoomType() {
+function RoomList() {
   const [roomType, setRoomType] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [securityDeposit, setSecurityDeposit] = useState("");
   const [advance, setAdvance] = useState("");
-  const [maintenancePeriod, setMaintenancePeriod] = useState("");
   const [maintenanceAmount, setMaintenanceAmount] = useState("");
-  const [roomTypes, setRoomTypes] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]); // State for storing fetched room types
 
-  const handleSubmit = () => {
+  // Fetch room types from API when component loads
+  useEffect(() => {
+    const fetchRoomTypes = async () => {
+      const result = await roomListAction.getRoomTypes();
+      if (result && result.data) {
+        setRoomTypes(result.data); // ✅ Only store the array of room data
+      }
+    };
+    fetchRoomTypes();
+  }, []);
+
+  const handleSubmit = async () => {
     if (
       roomType &&
-      monthlyRent >= 0 &&
-      securityDeposit >= 0 &&
-      advance >= 0 &&
-      maintenancePeriod &&
-      maintenanceAmount >= 0
+      monthlyRent !== "" &&
+      securityDeposit !== "" &&
+      advance !== "" &&
+      maintenanceAmount !== ""
     ) {
-      const newRoom = {
+      const formData = {
         roomType,
         monthlyRent,
         securityDeposit,
         advance,
-        maintenancePeriod,
         maintenanceAmount,
       };
 
-      setRoomTypes((prev) => [...prev, newRoom]);
-      setRoomType("");
-      setMonthlyRent("");
-      setSecurityDeposit("");
-      setAdvance("");
-      setMaintenancePeriod("");
-      setMaintenanceAmount("");
+      const result = await roomListAction.createRoomType(formData);
+
+      if (result) {
+        console.log("Room type created successfully:", result);
+
+        // Clear form after successful submission
+        setRoomType("");
+        setMonthlyRent("");
+        setSecurityDeposit("");
+        setAdvance("");
+        setMaintenanceAmount("");
+
+        // Refetch room list and update the table
+        const updatedRoomTypes = await roomListAction.getRoomTypes();
+        if (updatedRoomTypes && updatedRoomTypes.data) {
+          setRoomTypes(updatedRoomTypes.data); // ✅ Correctly update state
+        }
+      } else {
+        console.error("Failed to create room type");
+      }
+    } else {
+      console.warn("Please fill in all required fields.");
     }
   };
 
@@ -288,20 +309,6 @@ function RoomType() {
             sx={{ flex: "1 1 300px" }}
           />
           <TextField
-            select
-            label="Maintenance Period"
-            value={maintenancePeriod}
-            onChange={(e) => setMaintenancePeriod(e.target.value)}
-            fullWidth
-            sx={{ flex: "1 1 300px" }}
-          >
-            {maintenanceOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
             label="Maintenance Amount"
             type="number"
             inputProps={{ min: 0 }}
@@ -328,25 +335,24 @@ function RoomType() {
                 <TableCell>Monthly Rent</TableCell>
                 <TableCell>Security Deposit</TableCell>
                 <TableCell>Advance</TableCell>
-                <TableCell>Maintenance Period</TableCell>
                 <TableCell>Maintenance Cost</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {roomTypes.map((room, index) => (
-                <TableRow key={index}>
-                  <TableCell>{room.roomType}</TableCell>
-                  <TableCell>{room.monthlyRent}</TableCell>
-                  <TableCell>{room.securityDeposit}</TableCell>
-                  <TableCell>{room.advance}</TableCell>
-                  <TableCell>{room.maintenancePeriod}</TableCell>
-                  <TableCell>{room.maintenanceAmount}</TableCell>
-                </TableRow>
-              ))}
-              {roomTypes.length === 0 && (
+              {roomTypes.length > 0 ? (
+                roomTypes.map((room, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{room.name}</TableCell>
+                    <TableCell>{room.rentPrice}</TableCell>
+                    <TableCell>{room.securityDeposit}</TableCell>
+                    <TableCell>{room.advancePayment}</TableCell>
+                    <TableCell>{room.maintenanceCost}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No data added yet.
+                  <TableCell colSpan={5} align="center">
+                    No data to display.
                   </TableCell>
                 </TableRow>
               )}
@@ -358,4 +364,4 @@ function RoomType() {
   );
 }
 
-export default RoomType;
+export default RoomList;

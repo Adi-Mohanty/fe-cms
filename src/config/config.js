@@ -1,9 +1,8 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.54:8080",
+  baseUrl: "http://192.168.12.51:9000",
   apiEndpoint: {
-    addBuilding: "/building/create-update",
-    updateBuilding: "/building/create-update",
-    getAllBuildings: "/building/get/all/v1",
+    addRoomType: "/api/room-type/create",
+    getRoomList: "/api/room-type/list/1",
   },
 });
 

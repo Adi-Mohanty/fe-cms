@@ -66,7 +66,7 @@ import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Box } from "@mui/material";
 
 const dashboardList = [
-  { label: "Room Type", description: "Add Room Type", path: "/room-type" },
+  { label: "Room Type", description: "Add Room Type", path: "/room-list" },
   { label: "Buildings", description: "Add Building", path: "/building" },
   { label: "Managers", description: "Add Manager", path: "/manager" },
 ];

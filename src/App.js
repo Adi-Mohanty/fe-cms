@@ -4,7 +4,7 @@ import "./App.css";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Building from "./components/Building";
 import Manager from "./components/Manager";
-import RoomType from "./components/RoomType";
+import RoomList from "./components/RoomList";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/building" element={<Building />} />
         <Route path="/manager" element={<Manager />} />
-        <Route path="/room-type" element={<RoomType />} />
+        <Route path="/room-list" element={<RoomList />} />
       </Routes>
     </Router>
   );
