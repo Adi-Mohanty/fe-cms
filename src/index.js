@@ -7,11 +7,11 @@ import { MapLoaderProvider } from "./MapLoaderProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <MapLoaderProvider>
-      <App />
-    </MapLoaderProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <MapLoaderProvider>
+    <App />
+  </MapLoaderProvider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
