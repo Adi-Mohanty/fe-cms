@@ -3,6 +3,7 @@ import config from "../config/config";
 
 export const buildingAction = {
   createBuilding,
+  getAllBuildings,
 };
 
 async function createBuilding(buildingData) {
@@ -10,7 +11,7 @@ async function createBuilding(buildingData) {
     const apiEndPoint = config.baseUrl + config.apiEndpoint.createBuilding;
 
     const payload = {
-      companyId: 1, // Hardcoded as per your backend
+      companyId: 1, //Hard coded for now
       name: buildingData.name,
       address: buildingData.address,
       state: buildingData.state,
@@ -27,14 +28,21 @@ async function createBuilding(buildingData) {
     };
 
     const response = await apiService.post(apiEndPoint, payload);
-
-    if (response) {
-      return response.data;
-    } else {
-      return null;
-    }
+    return response ? response.data : null;
   } catch (err) {
     console.log("Failed to create building:", err);
     return null;
+  }
+}
+
+async function getAllBuildings() {
+  try {
+    const url = config.baseUrl + config.apiEndpoint.getAllBuildings;
+    const params = { companyId: 1 };
+    const response = await apiService.get(url, params);
+    return response ? response.data : [];
+  } catch (error) {
+    console.error("Failed to fetch buildings:", error);
+    return [];
   }
 }

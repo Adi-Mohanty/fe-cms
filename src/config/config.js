@@ -4,6 +4,7 @@ const config = Object.freeze({
     addRoomType: "/api/room-type/create",
     getRoomList: "/api/room-type/list/1",
     createBuilding: "/api/create/building",
+    getAllBuildings: "/api/get/all/buildings?companyId=1",
   },
 });
 
