@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const jwtTocken =
-  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQHdhdHNvby5jb20iLCJpYXQiOjE3NDU5Mjc1MzEsImV4cCI6MTc0NTk0OTEzMX0.4yXmwIuu53tq6JnySXZuAwjBegTGWL1EGWdhefm5ZmA";
+  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQHdhdHNvby5jb20iLCJpYXQiOjE3NDU5OTY2NjAsImV4cCI6MTc0NjAxODI2MH0.Ef2vF9m6WSCP-32GBtEfNAcKfbNNiXf8iyhAWs7Qf-o";
 
 const apiService = {
   get: async (url, params = {}) => {

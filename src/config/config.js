@@ -3,6 +3,7 @@ const config = Object.freeze({
   apiEndpoint: {
     addRoomType: "/api/room-type/create",
     getRoomList: "/api/room-type/list/1",
+    createBuilding: "/api/create/building",
   },
 });
 
