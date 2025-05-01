@@ -775,7 +775,6 @@ function Building() {
       return false;
     }
 
-    // If it's the 1st floor, validate room number prefix
     if (
       floor.floor === 1 &&
       !room.number.toLowerCase().startsWith("1") &&
@@ -805,7 +804,6 @@ function Building() {
   };
 
   const handleSubmit = async () => {
-    // Validate the floor and room data
     if (floors.length < 1) {
       alert("At least one floor is required.");
       return;
@@ -838,7 +836,6 @@ function Building() {
       }
     }
 
-    // Map floor and room data
     const floorRoomMapData = floors.map((floor) => ({
       floorNo: floor.floor,
       noOfRooms: (floor.rooms || []).length,
@@ -846,12 +843,13 @@ function Building() {
         roomNumber: room.number,
         isActive: true,
         isAvailable: true,
-        roomTypeId: parseInt(room.type), // `type` now comes from dropdown (e.g., 1, 2, 3)
+        roomTypeId: parseInt(room.type),
       })),
     }));
 
-    // Prepare building data
-    const buildingData = {
+    const buildingPayload = {
+      ...(editingBuilding?.id && { id: editingBuilding.id }),
+      companyId: 1,
       name: buildingName,
       address,
       state,
@@ -859,19 +857,19 @@ function Building() {
       latitude: buildingLocation?.lat || null,
       longitude: buildingLocation?.lng || null,
       numberOfFloors: floors.length,
-      managerId: null,
-      managerName: showManagerForm ? managerName : null,
-      managerEmail: showManagerForm ? managerEmail : null,
-      managerPhoneNumber: showManagerForm ? managerPhone : null,
-      managerPassword: showManagerForm ? managerPassword : null,
+      ...(!editingBuilding && {
+        managerId: null,
+        managerName: showManagerForm ? managerName : null,
+        managerEmail: showManagerForm ? managerEmail : null,
+        managerPhoneNumber: showManagerForm ? managerPhone : null,
+        managerPassword: showManagerForm ? managerPassword : null,
+      }),
       floorRoomMapData,
     };
 
     try {
-      // Call createOrUpdateBuilding, passing the building id if updating
       const result = await buildingAction.createOrUpdateBuilding(
-        buildingData,
-        editingBuilding?.id // If editing, pass the id, else it's treated as create
+        buildingPayload
       );
 
       if (result) {
@@ -906,7 +904,7 @@ function Building() {
       setManagerName(primaryManager.userName || "");
       setManagerEmail(primaryManager.email || "");
       setManagerPhone(primaryManager.phoneNumber || "");
-      setManagerPassword(""); // still not editable
+      setManagerPassword("");
     } else {
       setShowManagerForm(false);
       setManagerName("");
@@ -915,13 +913,12 @@ function Building() {
       setManagerPassword("");
     }
 
-    // Handle floor and room mapping
     if (Array.isArray(building.floorRoomMapData)) {
       const updatedFloors = building.floorRoomMapData.map((floor) => ({
         floor: floor.floorNo,
         rooms: (floor.roomDto || []).map((room) => ({
           number: room.roomNumber,
-          type: room.roomTypeId?.toString() || "", // Convert to string for dropdown compatibility
+          type: room.roomTypeId?.toString() || "",
         })),
       }));
 
@@ -1050,7 +1047,6 @@ function Building() {
                   </Button>
                 </Box>
 
-                {/* Room Table */}
                 {floor.rooms.some((room) => room.number && room.type) && (
                   <TableContainer component={Paper} sx={{ mt: 2 }}>
                     <Table size="small">
@@ -1082,6 +1078,7 @@ function Building() {
               <Checkbox
                 checked={showManagerForm}
                 onChange={(e) => setShowManagerForm(e.target.checked)}
+                disabled={!!editingBuilding}
               />
             }
             label="Add Manager"
@@ -1097,6 +1094,7 @@ function Building() {
                   value={managerName}
                   onChange={(e) => setManagerName(e.target.value)}
                   sx={{ flex: "1 1 300px" }}
+                  disabled={!!editingBuilding}
                 />
                 <TextField
                   label="Email"
@@ -1111,6 +1109,7 @@ function Building() {
                       : ""
                   }
                   autoComplete="new-email"
+                  disabled={!!editingBuilding}
                 />
                 <TextField
                   label="Phone Number"
@@ -1125,6 +1124,7 @@ function Building() {
                       ? "Enter a valid 10-digit Indian number"
                       : ""
                   }
+                  disabled={!!editingBuilding}
                 />
                 <TextField
                   label="Password"
@@ -1146,6 +1146,7 @@ function Building() {
                       </InputAdornment>
                     ),
                   }}
+                  disabled={!!editingBuilding}
                 />
               </Box>
             </Box>
@@ -1180,25 +1181,28 @@ function Building() {
             </TableHead>
             <TableBody>
               {buildingList.map((building, index) => {
-                // Calculate totalRooms only if floorRoomMapData is an array
                 const totalRooms = Array.isArray(building.floorRoomMapData)
                   ? building.floorRoomMapData.reduce(
                       (sum, floor) => sum + floor.noOfRooms,
                       0
                     )
-                  : 0; // default to 0 if floorRoomMapData is undefined or not an array
+                  : 0;
+
+                const managerName =
+                  building.managerIds && building.managerIds.length > 0
+                    ? building.managerIds[0].userName
+                    : "N/A";
 
                 return (
                   <TableRow key={building.id || index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{building.name}</TableCell>
                     <TableCell>{building.numberOfFloors}</TableCell>
-                    <TableCell>{totalRooms}</TableCell>{" "}
-                    {/* Display the total rooms here */}
+                    <TableCell>{totalRooms}</TableCell>
                     <TableCell>{building.state}</TableCell>
                     <TableCell>{building.city}</TableCell>
                     <TableCell>{building.address}</TableCell>
-                    <TableCell>{building.managerName || "N/A"}</TableCell>
+                    <TableCell>{managerName}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleEdit(building)}>
                         <EditIcon />

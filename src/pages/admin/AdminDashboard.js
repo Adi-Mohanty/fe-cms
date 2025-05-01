@@ -64,19 +64,52 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Paper, Typography, Box } from "@mui/material";
-
-const dashboardList = [
-  { label: "Room Type", description: "Add Room Type", path: "/room-list" },
-  { label: "Buildings", description: "Add Building", path: "/building" },
-  { label: "Managers", description: "Add Manager", path: "/manager" },
-];
+import adminDashboardActions from "../../action/AdminDashboardActions";
+import { useState, useEffect } from "react";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState({
+    totalRoomTypes: 0,
+    totalBuildings: 0,
+    totalManagers: 0,
+  });
+
+  const dashboardList = [
+    {
+      label: "Rooms",
+      description: `Total Rooms: ${dashboardData.totalRooms}`,
+      path: "/room-list",
+    },
+    {
+      label: "Buildings",
+      description: `Total Buildings: ${dashboardData.totalBuildings}`,
+      path: "/building",
+    },
+    {
+      label: "Managers",
+      description: `Total Managers: ${dashboardData.totalManagers}`,
+      path: "/manager",
+    },
+  ];
 
   const handleClick = (path) => {
     navigate(path);
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await adminDashboardActions.getDashboardData();
+      if (response?.data) {
+        setDashboardData({
+          totalRooms: response.data.totalRoom || 0,
+          totalBuildings: response.data.noOfBuildings || 0,
+          totalManagers: response.data.noOfManagers || 0,
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Box
@@ -115,7 +148,7 @@ function AdminDashboard() {
               sx={{
                 width: "33.33%",
                 position: "relative",
-                pt: "33.33%", // Creates a square
+                pt: "33.33%",
               }}
             >
               <Paper

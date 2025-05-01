@@ -10,26 +10,7 @@ export const buildingAction = {
 async function createOrUpdateBuilding(buildingData, buildingId = null) {
   try {
     const apiEndPoint = config.baseUrl + config.apiEndpoint.createBuilding;
-
-    const payload = {
-      ...(buildingId && { id: buildingId }),
-      companyId: 1,
-      name: buildingData.name,
-      address: buildingData.address,
-      state: buildingData.state,
-      city: buildingData.city,
-      latitude: buildingData.latitude,
-      longitude: buildingData.longitude,
-      numberOfFloors: buildingData.numberOfFloors,
-      managerId: buildingData.managerId || null,
-      managerName: buildingData.managerName,
-      managerEmail: buildingData.managerEmail,
-      managerPhoneNumber: buildingData.managerPhoneNumber,
-      managerPassword: buildingData.managerPassword,
-      floorRoomMapData: buildingData.floorRoomMapData,
-    };
-
-    const response = await apiService.post(apiEndPoint, payload);
+    const response = await apiService.post(apiEndPoint, buildingData);
     return response ? response.data : null;
   } catch (err) {
     console.error("Failed to create/update building:", err);

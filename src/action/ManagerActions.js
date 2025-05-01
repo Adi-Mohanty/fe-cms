@@ -12,7 +12,6 @@ async function fetchBuildings() {
     const res = await apiService.get(
       config.baseUrl + config.apiEndpoint.getAllBuildings
     );
-    // Accessing buildings from res.data.data based on the provided structure
     return Array.isArray(res.data.data) ? res.data.data : [];
   } catch (err) {
     console.error("Failed to fetch buildings:", err);

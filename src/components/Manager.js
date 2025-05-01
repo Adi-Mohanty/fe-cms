@@ -284,11 +284,9 @@ function Manager() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetching buildings
         const buildings = await managerActions.fetchBuildings();
         console.log("Buildings fetched:", buildings);
 
-        // Check if buildings are valid and map the building options
         if (Array.isArray(buildings) && buildings.length > 0) {
           const buildingOptions = buildings.map((building) => ({
             id: building.id,
@@ -298,10 +296,9 @@ function Manager() {
           setBuildingOptions(buildingOptions);
         } else {
           console.error("No valid buildings available.");
-          setBuildingOptions([]); // Empty if no valid buildings
+          setBuildingOptions([]);
         }
 
-        // Fetching managers
         const managers = await managerActions.fetchManagers();
         setManagerList(managers);
       } catch (error) {
@@ -335,7 +332,7 @@ function Manager() {
       managerPhoneNumber: phone,
       managerPassword: password,
       buildingId: building,
-      companyId: 1, // Hardcoded for now
+      companyId: 1,
     };
 
     const result = await managerActions.createManager(managerData);
@@ -343,7 +340,6 @@ function Manager() {
       alert("Manager created successfully!");
       const updatedManagers = await managerActions.fetchManagers();
       setManagerList(updatedManagers);
-      // Clear form
       setName("");
       setEmail("");
       setPhone("");
@@ -364,7 +360,6 @@ function Manager() {
         Managers
       </Typography>
 
-      {/* Manager Form */}
       <Box component={Paper} p={3} mb={4}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           Add Manager
@@ -397,6 +392,7 @@ function Manager() {
             }
             fullWidth
             sx={{ flex: "1 1 300px" }}
+            autoComplete="new-email"
           />
 
           <TextField
@@ -412,6 +408,7 @@ function Manager() {
             }
             fullWidth
             sx={{ flex: "1 1 300px" }}
+            autoComplete="new-phone"
           />
           <TextField
             label="Password"
@@ -420,6 +417,7 @@ function Manager() {
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             sx={{ flex: "1 1 300px" }}
+            autoComplete="new-password"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

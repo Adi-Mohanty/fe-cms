@@ -6,7 +6,8 @@ const config = Object.freeze({
     createBuilding: "/api/create/building",
     getAllBuildings: "/api/get/all/buildings?companyId=1",
     createManager: "/api/assign/manager",
-    getManagersByRole: "/api/users/by/role", // UPDATED
+    getManagersByRole: "/api/users/by/role",
+    getAdminDashboardData: "/api/get/company/dashboard/data",
   },
 });
 

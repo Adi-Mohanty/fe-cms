@@ -201,14 +201,13 @@ function RoomList() {
   const [securityDeposit, setSecurityDeposit] = useState("");
   const [advance, setAdvance] = useState("");
   const [maintenanceAmount, setMaintenanceAmount] = useState("");
-  const [roomTypes, setRoomTypes] = useState([]); // State for storing fetched room types
+  const [roomTypes, setRoomTypes] = useState([]);
 
-  // Fetch room types from API when component loads
   useEffect(() => {
     const fetchRoomTypes = async () => {
       const result = await roomListAction.getRoomTypes();
       if (result && result.data) {
-        setRoomTypes(result.data); // ✅ Only store the array of room data
+        setRoomTypes(result.data);
       }
     };
     fetchRoomTypes();
@@ -222,30 +221,29 @@ function RoomList() {
       advance !== "" &&
       maintenanceAmount !== ""
     ) {
-      const formData = {
-        roomType,
-        monthlyRent,
-        securityDeposit,
-        advance,
-        maintenanceAmount,
+      const payload = {
+        name: roomType,
+        rentPrice: Number(monthlyRent),
+        maintenanceCost: Number(maintenanceAmount),
+        securityDeposit: Number(securityDeposit),
+        advancePayment: Number(advance),
+        companyId: 1,
       };
 
-      const result = await roomListAction.createRoomType(formData);
+      const result = await roomListAction.createRoomType(payload);
 
       if (result) {
         console.log("Room type created successfully:", result);
 
-        // Clear form after successful submission
         setRoomType("");
         setMonthlyRent("");
         setSecurityDeposit("");
         setAdvance("");
         setMaintenanceAmount("");
 
-        // Refetch room list and update the table
         const updatedRoomTypes = await roomListAction.getRoomTypes();
         if (updatedRoomTypes && updatedRoomTypes.data) {
-          setRoomTypes(updatedRoomTypes.data); // ✅ Correctly update state
+          setRoomTypes(updatedRoomTypes.data);
         }
       } else {
         console.error("Failed to create room type");
