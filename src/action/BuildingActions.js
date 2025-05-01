@@ -2,16 +2,18 @@ import apiService from "../service/Service";
 import config from "../config/config";
 
 export const buildingAction = {
-  createBuilding,
+  createOrUpdateBuilding,
   getAllBuildings,
+  getRoomTypes,
 };
 
-async function createBuilding(buildingData) {
+async function createOrUpdateBuilding(buildingData, buildingId = null) {
   try {
     const apiEndPoint = config.baseUrl + config.apiEndpoint.createBuilding;
 
     const payload = {
-      companyId: 1, //Hard coded for now
+      ...(buildingId && { id: buildingId }),
+      companyId: 1,
       name: buildingData.name,
       address: buildingData.address,
       state: buildingData.state,
@@ -30,7 +32,7 @@ async function createBuilding(buildingData) {
     const response = await apiService.post(apiEndPoint, payload);
     return response ? response.data : null;
   } catch (err) {
-    console.log("Failed to create building:", err);
+    console.error("Failed to create/update building:", err);
     return null;
   }
 }
@@ -43,6 +45,17 @@ async function getAllBuildings() {
     return response ? response.data : [];
   } catch (error) {
     console.error("Failed to fetch buildings:", error);
+    return [];
+  }
+}
+
+async function getRoomTypes() {
+  try {
+    const url = config.baseUrl + config.apiEndpoint.getRoomList;
+    const response = await apiService.get(url);
+    return response?.data?.data || [];
+  } catch (error) {
+    console.error("Failed to fetch room types:", error);
     return [];
   }
 }

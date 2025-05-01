@@ -7,19 +7,19 @@ export const managerActions = {
   fetchManagers,
 };
 
-// 1. Fetch all buildings (for dropdown)
 async function fetchBuildings() {
   try {
-    const apiEndPoint = config.baseUrl + config.apiEndpoint.getAllBuildings;
-    const response = await apiService.get(apiEndPoint);
-    return response?.data || [];
+    const res = await apiService.get(
+      config.baseUrl + config.apiEndpoint.getAllBuildings
+    );
+    // Accessing buildings from res.data.data based on the provided structure
+    return Array.isArray(res.data.data) ? res.data.data : [];
   } catch (err) {
-    console.error("Error fetching buildings:", err);
+    console.error("Failed to fetch buildings:", err);
     return [];
   }
 }
 
-// 2. Create a new manager
 async function createManager(managerData) {
   try {
     const apiEndPoint = config.baseUrl + config.apiEndpoint.createManager;
@@ -31,12 +31,12 @@ async function createManager(managerData) {
   }
 }
 
-// 3. Fetch all managers
 async function fetchManagers() {
   try {
-    const apiEndPoint = config.baseUrl + config.apiEndpoint.getAllManagers;
-    const response = await apiService.get(apiEndPoint);
-    return response?.data || [];
+    const apiEndPoint = config.baseUrl + config.apiEndpoint.getManagersByRole;
+    const response = await apiService.get(apiEndPoint, { role: "MANAGER" });
+
+    return response?.data?.data || [];
   } catch (err) {
     console.error("Error fetching managers:", err);
     return [];

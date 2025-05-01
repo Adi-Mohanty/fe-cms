@@ -5,6 +5,8 @@ const config = Object.freeze({
     getRoomList: "/api/room-type/list/1",
     createBuilding: "/api/create/building",
     getAllBuildings: "/api/get/all/buildings?companyId=1",
+    createManager: "/api/assign/manager",
+    getManagersByRole: "/api/users/by/role", // UPDATED
   },
 });
 

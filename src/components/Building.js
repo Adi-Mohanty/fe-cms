@@ -606,7 +606,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { MapLoaderProvider, useMapLoader } from "../MapLoaderProvider";
 import { buildingAction } from "../action/BuildingActions";
 
-const roomTypes = ["Normal", "Deluxe", "Super Deluxe"];
 const defaultCenter = { lat: 20.296059, lng: 85.824539 };
 const containerStyle = {
   width: "100%",
@@ -722,6 +721,7 @@ function Building() {
   const [newRoomInputs, setNewRoomInputs] = useState([
     { number: "", type: "" },
   ]);
+  const [roomTypes, setRoomTypes] = useState([]);
   const [showManagerForm, setShowManagerForm] = useState(false);
   const [buildingLocation, setBuildingLocation] = useState(null);
   const [buildingName, setBuildingName] = useState("");
@@ -749,6 +749,14 @@ function Building() {
   };
   useEffect(() => {
     fetchBuildings();
+  }, []);
+  useEffect(() => {
+    const fetchRoomTypes = async () => {
+      const types = await buildingAction.getRoomTypes();
+      setRoomTypes(types);
+    };
+
+    fetchRoomTypes();
   }, []);
 
   const handleTogglePasswordVisibility = () => {
@@ -797,21 +805,28 @@ function Building() {
   };
 
   const handleSubmit = async () => {
-    // Validation: Must have at least 1 floor
+    // Validate the floor and room data
     if (floors.length < 1) {
       alert("At least one floor is required.");
       return;
     }
 
-    // Validation: Each floor must have at least one room
     for (let i = 0; i < floors.length; i++) {
       if (!floors[i].rooms || floors[i].rooms.length === 0) {
         alert(`Floor ${floors[i].floor} must have at least one room.`);
         return;
       }
+
+      for (let j = 0; j < floors[i].rooms.length; j++) {
+        if (!floors[i].rooms[j].type) {
+          alert(
+            `Room ${floors[i].rooms[j].number} on floor ${floors[i].floor} must have a room type selected.`
+          );
+          return;
+        }
+      }
     }
 
-    // Validation: First room on 1st floor must start with '1' or '1a'
     const firstFloor = floors.find((f) => f.floor === 1);
     if (firstFloor && firstFloor.rooms.length > 0) {
       const firstRoomNumber = firstFloor.rooms[0].number.toLowerCase();
@@ -822,6 +837,8 @@ function Building() {
         return;
       }
     }
+
+    // Map floor and room data
     const floorRoomMapData = floors.map((floor) => ({
       floorNo: floor.floor,
       noOfRooms: (floor.rooms || []).length,
@@ -829,10 +846,11 @@ function Building() {
         roomNumber: room.number,
         isActive: true,
         isAvailable: true,
-        roomTypeId: parseInt(room.type),
+        roomTypeId: parseInt(room.type), // `type` now comes from dropdown (e.g., 1, 2, 3)
       })),
     }));
 
+    // Prepare building data
     const buildingData = {
       name: buildingName,
       address,
@@ -850,29 +868,17 @@ function Building() {
     };
 
     try {
-      if (editingBuilding) {
-        // Update existing building
-        const result = await buildingAction.updateBuilding(
-          editingBuilding.id,
-          buildingData
-        );
-        if (result) {
-          // Reset form after successful update
-          resetForm();
-          fetchBuildings();
-        } else {
-          console.error("Building update failed.");
-        }
+      // Call createOrUpdateBuilding, passing the building id if updating
+      const result = await buildingAction.createOrUpdateBuilding(
+        buildingData,
+        editingBuilding?.id // If editing, pass the id, else it's treated as create
+      );
+
+      if (result) {
+        resetForm();
+        fetchBuildings();
       } else {
-        // Create new building
-        const result = await buildingAction.createBuilding(buildingData);
-        if (result) {
-          // Reset form after successful creation
-          resetForm();
-          fetchBuildings();
-        } else {
-          console.error("Building creation failed.");
-        }
+        console.error("Building creation/update failed.");
       }
     } catch (error) {
       console.error("Error submitting building:", error);
@@ -890,16 +896,17 @@ function Building() {
       lng: building.longitude,
     });
 
-    if (
-      building.managerName ||
-      building.managerEmail ||
-      building.managerPhoneNumber
-    ) {
+    const primaryManager =
+      Array.isArray(building.managerIds) && building.managerIds.length > 0
+        ? building.managerIds[0]
+        : null;
+
+    if (primaryManager) {
       setShowManagerForm(true);
-      setManagerName(building.managerName || "");
-      setManagerEmail(building.managerEmail || "");
-      setManagerPhone(building.managerPhoneNumber || "");
-      setManagerPassword(""); // Password is not editable
+      setManagerName(primaryManager.userName || "");
+      setManagerEmail(primaryManager.email || "");
+      setManagerPhone(primaryManager.phoneNumber || "");
+      setManagerPassword(""); // still not editable
     } else {
       setShowManagerForm(false);
       setManagerName("");
@@ -908,18 +915,19 @@ function Building() {
       setManagerPassword("");
     }
 
+    // Handle floor and room mapping
     if (Array.isArray(building.floorRoomMapData)) {
       const updatedFloors = building.floorRoomMapData.map((floor) => ({
         floor: floor.floorNo,
         rooms: (floor.roomDto || []).map((room) => ({
           number: room.roomNumber,
-          type: room.roomTypeId != null ? room.roomTypeId.toString() : "", // or default to "N/A"
+          type: room.roomTypeId?.toString() || "", // Convert to string for dropdown compatibility
         })),
       }));
 
       setFloors(updatedFloors);
     } else {
-      setFloors([{ floor: 1, rooms: [] }]); // Default empty floors if no floor data
+      setFloors([{ floor: 1, rooms: [] }]);
     }
   };
 
@@ -1013,8 +1021,8 @@ function Building() {
                     sx={{ width: 400 }}
                   >
                     {roomTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
+                      <MenuItem key={type.id} value={type.id}>
+                        {type.name}
                       </MenuItem>
                     ))}
                   </TextField>
