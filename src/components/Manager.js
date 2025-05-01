@@ -14,6 +14,9 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import EditIcon from "@mui/icons-material/Edit";
 
 function Manager() {
@@ -23,6 +26,11 @@ function Manager() {
   const [password, setPassword] = useState("");
   const [building, setBuilding] = useState("");
   const [buildingOptions, setBuildingOptions] = useState([]);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   // Placeholder effect for fetching building options (API call later)
   useEffect(() => {
@@ -34,6 +42,9 @@ function Manager() {
 
     fetchBuildings();
   }, []);
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
 
   const handleSubmit = () => {
     console.log("Submit button clicked");
@@ -69,36 +80,57 @@ function Manager() {
             onChange={(e) => setName(e.target.value)}
             fullWidth
             sx={{ flex: "1 1 300px" }}
-            autoComplete="off"
             name="manager-name"
           />
           <TextField
             label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            error={email !== "" && !isValidEmail(email)}
+            helperText={
+              email !== "" && !isValidEmail(email)
+                ? "Please enter a valid email address"
+                : ""
+            }
             fullWidth
             sx={{ flex: "1 1 300px" }}
             autoComplete="new-email"
             name="manager-email"
           />
+
           <TextField
             label="Phone Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            inputProps={{ maxLength: 10 }}
+            error={phone !== "" && !isValidPhone(phone)}
+            helperText={
+              phone !== "" && !isValidPhone(phone)
+                ? "Enter a valid 10-digit Indian mobile number"
+                : ""
+            }
             fullWidth
             sx={{ flex: "1 1 300px" }}
-            autoComplete="off"
             name="manager-phone"
           />
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             sx={{ flex: "1 1 300px" }}
-            autoComplete="new-password"
             name="manager-password"
+            autoComplete="new-password"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={togglePasswordVisibility} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Role"

@@ -759,6 +759,26 @@ function Building() {
     setFloors((prev) => [...prev, { floor: prev.length + 1, rooms: [] }]);
     setNewRoomInputs((prev) => [...prev, { number: "", type: "" }]);
   };
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
+  const isRoomValid = (floor, room) => {
+    if (!room.number || !room.type) {
+      alert("Room number and type are required.");
+      return false;
+    }
+
+    // If it's the 1st floor, validate room number prefix
+    if (
+      floor.floor === 1 &&
+      !room.number.toLowerCase().startsWith("1") &&
+      !room.number.toLowerCase().startsWith("1a")
+    ) {
+      alert("Room number on the 1st floor must start with '1' or '1a'.");
+      return false;
+    }
+
+    return true;
+  };
 
   const resetForm = () => {
     setBuildingName("");
@@ -777,6 +797,31 @@ function Building() {
   };
 
   const handleSubmit = async () => {
+    // Validation: Must have at least 1 floor
+    if (floors.length < 1) {
+      alert("At least one floor is required.");
+      return;
+    }
+
+    // Validation: Each floor must have at least one room
+    for (let i = 0; i < floors.length; i++) {
+      if (!floors[i].rooms || floors[i].rooms.length === 0) {
+        alert(`Floor ${floors[i].floor} must have at least one room.`);
+        return;
+      }
+    }
+
+    // Validation: First room on 1st floor must start with '1' or '1a'
+    const firstFloor = floors.find((f) => f.floor === 1);
+    if (firstFloor && firstFloor.rooms.length > 0) {
+      const firstRoomNumber = firstFloor.rooms[0].number.toLowerCase();
+      if (
+        !(firstRoomNumber.startsWith("1") || firstRoomNumber.startsWith("1a"))
+      ) {
+        alert("The first room on the 1st floor must start with '1' or '1a'.");
+        return;
+      }
+    }
     const floorRoomMapData = floors.map((floor) => ({
       floorNo: floor.floor,
       noOfRooms: (floor.rooms || []).length,
@@ -980,7 +1025,9 @@ function Building() {
                     variant="outlined"
                     onClick={() => {
                       const room = newRoomInputs[floorIndex];
-                      if (!room.number || !room.type) return;
+                      const currentFloor = floors[floorIndex];
+
+                      if (!isRoomValid(currentFloor, room)) return;
 
                       const updatedFloors = [...floors];
                       updatedFloors[floorIndex].rooms.push({ ...room });
@@ -1049,6 +1096,12 @@ function Building() {
                   value={managerEmail}
                   onChange={(e) => setManagerEmail(e.target.value)}
                   sx={{ flex: "1 1 300px" }}
+                  error={managerEmail !== "" && !isValidEmail(managerEmail)}
+                  helperText={
+                    managerEmail !== "" && !isValidEmail(managerEmail)
+                      ? "Invalid email format"
+                      : ""
+                  }
                   autoComplete="new-email"
                 />
                 <TextField
@@ -1057,6 +1110,13 @@ function Building() {
                   value={managerPhone}
                   onChange={(e) => setManagerPhone(e.target.value)}
                   sx={{ flex: "1 1 300px" }}
+                  inputProps={{ maxLength: 10 }}
+                  error={managerPhone !== "" && !isValidPhone(managerPhone)}
+                  helperText={
+                    managerPhone !== "" && !isValidPhone(managerPhone)
+                      ? "Enter a valid 10-digit Indian number"
+                      : ""
+                  }
                 />
                 <TextField
                   label="Password"
